@@ -1,0 +1,10 @@
+- in this folder we will have our js files
+- javascript is a functional programming language so our program must be broken into some of functions
+- we must think of the program as a collection of parts (or files), each file contain some functions to do related tasks
+- each one will work on some of them
+
+
+- Parts ?
+	1- taking input from user (JS DOM)
+	2- processing (will be splitted)
+	3- showing output (JS DOM)
