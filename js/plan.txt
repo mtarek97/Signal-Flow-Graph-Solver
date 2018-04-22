@@ -4,7 +4,39 @@
 - each one will work on some of them
 
 
-- Parts ?
-	1- taking input from user (JS DOM)
-	2- processing (will be splitted)
-	3- showing output (JS DOM)
+- we must accomplish the following (requirements)
+    * fancy GUI :D
+    * Drawing the signal flow graph
+    * Listing of all florward paths, individual loops, all combinations of n non-touching loops
+    * Calulating all forward paths gains, individual loops gain, all combinations of n non-touching loops gains (to calcualte delta)
+    * calculating delta for each forward path
+    
+    
+- The program workflow will be the following:
+    1.  Taking the SFG info from the user. Regardless of the way (i.e. drag and drop or text fields), we must have nodes and branches associated    with gains.
+    2.  Creating SignalFlowGraph object and Calling the needed methods to fulfill the requirements.
+    3.  Showing the output to the user (back to GUI).
+    
+
+- the logic behind:
+
+    1. Listing (and calualting) all forward paths:
+        The user must assign the source node and the destination node.
+        Start the traversal from source. If we reach the destination, print that path. Calculate its gain. Continue the traversal till finish.
+        
+    2. Listing all individual loops
+        naive algorithm ?!
+        tarjan, johnson -> complicated implementation
+        
+    3. Listing all n non-touching loops
+        for i = 2 to #nodes
+            find all i-combinations of nodes
+            for each combination
+                test if the loops is non-touching   (if so, calcualte the gain)
+                
+    4. calculating delta for each forward path
+        for each forward path
+            if it touches with any loop, remove the loop
+            
+
+    
