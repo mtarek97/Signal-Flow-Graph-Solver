@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <title>Signal Flow Graph Solver</title>
-    <script src="https://cdn.rawgit.com/konvajs/konva/2.0.3/konva.min.js"></script>
+    <!--<script src="https://cdn.rawgit.com/konvajs/konva/2.0.3/konva.min.js"></script>
+    <script src="js/sigma.core.js"></script>-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
     <link rel='stylesheet' href="css/style.css" />
+    <script src="js/cytoscape.min.js"></script>
 </head>
 
 <body>
@@ -18,41 +20,71 @@
                 <a class="github-button" href="https://github.com/MahmoudTarek97/Signal-Flow-Graph-Solver" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star ntkme/github-buttons on GitHub">Star</a></h1>
             <hr class="my-4">
             <p>A signal-flow graph (SFG), often called a Mason graph, is a specialized flow graph, a directed graph in which nodes represent system variables, and branches (edges, arcs, or arrows) represent functional connections between pairs of nodes. SFG's are most commonly used to represent signal flow in a physical system and its controller(s), forming a cyber-physical system.</p>
-            <a class="btn btn-secondary" href="https://en.wikipedia.org/wiki/Signal-flow_graph" role="button">Learn more</a>
+            <a class="btn btn-primary" href="https://en.wikipedia.org/wiki/Signal-flow_graph" role="button">Learn more</a>
         </div>
 
-        <!-- Buttons -->
-        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-            <div class="btn-group mr-2" role="group" aria-label="First group">
-                <button type="button" class="btn btn-secondary">Add Node</button>
-                <button type="button" class="btn btn-secondary">Add Branch</button>
-                <button type="button" class="btn btn-secondary">Delete</button>
-                <button type="button" class="btn btn-secondary">Clear All</button>
-            </div>
-            <div class="btn-group" role="group" aria-label="Second group">
-                <button type="button" class="btn btn-secondary">Solve</button>
+
+        <div class="jumbotron">
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#dragdrop">Drag &amp; Drop Mode</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#classic">Classic Mode</a>
+                </li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div class="tab-pane active container" id="dragdrop"><br>
+
+                    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                            <button type="button" class="btn btn-outline-primary" onclick="addNode()">Add Node</button>
+                            <button type="button" class="btn btn-outline-primary" onclick="addBranch()">Add Branch</button>
+                            <button type="button" class="btn btn-outline-primary" onclick="remove()">Remove</button>
+                            <button type="button" class="btn btn-outline-danger" onclick="clearAll()">Clear All</button>
+                        </div>
+                        <div class="btn-group" role="group" aria-label="Third group">
+                            <button type="button" class="btn btn-outline-success">Solve</button>
+                        </div>
+                    </div>
+
+                    <div id="cy">
+
+                    </div>
+                </div>
+                <div class="tab-pane container" id="classic"><br>
+                    <p>Taking input from the user as a text then draw the static graph on one shot</p>
+                </div>
             </div>
         </div>
 
-        <!-- Main Canvas -->
-        <div id="container"></div>
 
-        <!-- credits -->
-        <div class="panel panel-default">
-            <div class="panel-footer">
-                <p>&copy; All Credits goes to Mahmoud Tarek &amp; Mostafa Labib</p>
-            </div>
+
+        <!-- output -->
+        <div class="jumbotron">
+            <p> Output will be here </p>
         </div>
+
+        <hr>
+        <footer>
+            <p>&copy; All Credits goes to Mahmoud Tarek &amp; Mostafa Labib</p>
+        </footer>
 
 
     </div>
 
-    <script src="js/GUI.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
     <script async defer src="https://buttons.github.io/buttons.js"></script>
 
+    <!--<script src="js/node.js"></script>-->
+    <script src="js/GUI.js"></script>
 
 </body>
 
