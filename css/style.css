@@ -1,11 +1,18 @@
- body {
-     background-color: lightblue;
- }
+body {
+    background-color: darkgray;
+}
 
- .jumbotron {
-     background-color: #FFFFF3;
- }
+.jumbotron {
+    background-color: #FFFFF3;
+}
 
- .navbar navbar-light bg-light {
-     background-color: #FFFFF3;
- }
+#container {
+    background-color: #FFFFF3;
+    border: solid 1px blue;
+    width: 100%;
+
+}
+
+.navbar navbar-light bg-light {
+    background-color: #FFFFF3;
+}
