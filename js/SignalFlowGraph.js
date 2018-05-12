@@ -15,9 +15,11 @@ function tryo(){
     g.setEdge("b", "c");
     g.setEdge("c", "d");
     g.setEdge("d", "e");
-    g.setEdge("b", "d");
+    g.setEdge("d", "b");
+    g.setEdge("e", "b");
+    g.setEdge("e", "a");
     var stack = [];
-    var data = getForwordPaths(g,stack,"a");
+    var data = getCycles(g,stack,"a");
     for (var i = 0; i < data.length; i++){
         for (var j = 0; j < data[i].length; j++){
             this.console.log(data[i][j]);
@@ -36,7 +38,7 @@ function getForwordPaths(graph,stack,startNode){
     for(var i = 0; i < outEdges.length; i++){
         var node = outEdges[i]['w'];
         var data = [];
-        if(node != "End" || stack.indexOf(node) != -1) {
+        if(node != "End" && stack.indexOf(node) == -1) {
             data = getForwordPaths(graph, stack, node);
         }
         stack.pop();
@@ -55,6 +57,50 @@ function getForwordPaths(graph,stack,startNode){
         forwordPaths.push(path);
     }
     return forwordPaths;
+}
+
+function getCycle(graph,startNode,nodesStack,stack){
+    var outEdges = graph.outEdges(startNode);
+    var data = [];
+    stack.push(startNode);
+    for(var i = 0; i < outEdges.length; i++){
+        var node = outEdges[i]['w'];
+        if(nodesStack.indexOf(node) == -1 && stack.indexOf(node) == -1) {
+            var l = getCycle(graph, node, nodesStack, stack);
+            for(var j = 0; j < l.length; j++){
+                var cycle = [];
+                cycle.push(startNode);
+                for(var k = 0; k < l[j].length; k++){
+                    cycle.push(l[j][k]);
+                }
+                data.push(cycle);
+            }
+
+        }
+        if(stack.indexOf(node) == 0){
+            var cycle = [];
+            cycle.push(startNode);
+            data.push(cycle);
+        }
+
+    }
+    return data;
+}
+
+function getCycles(graph){
+
+    var nodes = graph.nodes();
+    var cycles = []
+    var stacks = []
+    for(var i = 0; i < nodes.length; i++){
+        var stack = []
+        var cycle = getCycle(graph, nodes[i], stacks, stack);
+        for(var j = 0; j < cycle.length; j++){
+            cycles.push(cycle[j]);
+        }
+        stacks.push(nodes[i]);
+    }
+    return cycles;
 }
 
 tryo()
