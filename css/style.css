@@ -23,3 +23,23 @@ body {
     border-style: groove;
     display: block;
 }
+
+.button {
+    background-color: white;
+    color: dodgerblue;
+}
+
+.button:hover {
+    background-color: dodgerblue;
+    color: white;
+}
+
+.hold-button {
+    background-color: dodgerblue;
+    color: white;
+}
+
+.hold-button:hover {
+    background-color: dodgerblue;
+    color: white;
+}
