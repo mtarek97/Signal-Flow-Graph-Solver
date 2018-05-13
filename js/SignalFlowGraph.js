@@ -10,23 +10,29 @@ function tryo(){
     g.setNode("c","c");
     g.setNode("d","d");
     g.setNode("e","e");
-    g.setNode("f","f");
-    g.setNode("g","End");
+    g.setNode("End","End");
+    g.setNode("g","g");
 
     g.setEdge("a", "b",{ k: 1 });
-    g.setEdge("b", "c",{ k: 2 });
-    g.setEdge("c", "d",{ k: 4 });
-    g.setEdge("d", "e",{ k: 5 });
-    g.setEdge("e", "f",{ k: 6 });
-    g.setEdge("f", "g",{ k: 7 });
-    g.setEdge("c", "a",{ k: 7 });
-    g.setEdge("e", "d");
-    g.setEdge("f", "d");
-    g.setEdge("g", "f");
-    g.setEdge("b", "d");
+    g.setEdge("b", "c",{ k: 5 });
+    g.setEdge("c", "d",{ k: 10 });
+    g.setEdge("d", "e",{ k: 2 });
+    g.setEdge("e", "End",{ k: 1 });
+    g.setEdge("b", "g",{ k: 10 });
+    g.setEdge("g", "e",{ k: 2 });
+    g.setEdge("e", "b",{ k: -1 });
+    g.setEdge("e", "d",{ k: -2 });
+    g.setEdge("d", "c",{ k: -1 });
+    g.setEdge("g", "g",{ k: -1 });
+
     var stack = [];
-    var data = getCycles(g);
-   // var nontouching = getNonTouchingLoops(data);
+    var forwordPaths = getForwordPaths(g,stack,"a");
+    var cycles = getCycles(g);
+    var nontouching = getNonTouchingLoops(cycles);
+    var result = getMasonsResult(g,forwordPaths,cycles,nontouching)
+    this.console.log(result);
+
+
     /*for (var i = 0; i < data.length; i++){
         for (var j = 0; j < data[i].length; j++){
             this.console.log(data[i][j]);
@@ -35,8 +41,8 @@ function tryo(){
         var path = data[0];
         this.console.log(getForwardGain(g,path));
     }*/
-    this.console.log(getCycleGain(g,data[0]));
-    //this.console.log(getEdgeGian(g,"a","b"));
+    //this.console.log(getCycleGain(g,data[0]));
+    //this.console.log(getEdgeGian(g,"a","b"));*/
 }
 
 
@@ -49,7 +55,7 @@ function getForwordPaths(graph,stack,startNode){
     for(var i = 0; i < outEdges.length; i++){
         var node = outEdges[i]['w'];
         var data = [];
-        if(node != "End" && stack.indexOf(node) == -1) {
+        if(stack.indexOf(node) == -1) {
             data = getForwordPaths(graph, stack, node);
             flag ++;
         }
@@ -64,7 +70,7 @@ function getForwordPaths(graph,stack,startNode){
         }
     }
     stack.pop();
-    if(outEdges.length == 0 || flag == 0){
+    if(startNode == "End"){
         var path = [];
         path.push(startNode);
         forwordPaths.push(path);
@@ -97,6 +103,7 @@ function getCycle(graph,startNode,nodesStack,stack){
         }
 
     }
+    stack.pop();
     return data;
 }
 
@@ -177,19 +184,75 @@ function getEdgeGian(graph, node1, node2){
     return graph.edge(node1,node2)['k'];
 }
 
-function getDelta(cycles,nontouchingLoops) {
+function getDelta(graph,cycles,nontouchingLoops) {
     var delta = 1;
     if(cycles.length == 0){
         return delta;
     }else {
         var sum = 0;
         for(var i = 0; i < cycles.length; i++){
-            sum = sum + getCycleGain(cycles[i]);
+            sum = sum + getCycleGain(graph,cycles[i]);
         }
         delta = delta - sum;
-
+        var flag = 1;
+        var sumOfmultipliedLoops = getSumOfMultipliedLoops(graph,nontouchingLoops);
+        for (var i = 0; i < sumOfmultipliedLoops.length; i++){
+            delta = delta + flag * sumOfmultipliedLoops[i];
+            flag = flag * -1;
+        }
     }
+    return delta;
 }
+
+function getSumOfMultipliedLoops(graph,nontouchingLoops) {
+    var sumOfmultipliedLoops = [];
+    for(var i = 0; i < nontouchingLoops.length; i++){
+        var sum = 0;
+        for (var j = 0; j < nontouchingLoops[i].length; j++){
+            sum = sum + getMultipliedLoops(graph,nontouchingLoops[i][j]);
+        }
+        sumOfmultipliedLoops.push(sum);
+    }
+    return sumOfmultipliedLoops;
+}
+
+function getMultipliedLoops(graph,arrayOfLoops) {
+    var gain = 1;
+    for (var i = 0; i < arrayOfLoops.length; i++){
+        gain = gain * getCycleGain(graph,arrayOfLoops[i]);
+    }
+    return gain;
+}
+
+function getValidCyclesWithPath(path,cycles) {
+    var validCycles = []
+    for(var i = 0; i < cycles.length; i++){
+        var flag = 0;
+        for (var j = 0; j < path.length; j++){
+            if(cycles[i].indexOf(path[j]) != -1){
+                flag ++;
+                break;
+            }
+        }
+        if(flag == 0){
+            validCycles.push(cycles[i]);
+        }
+    }
+    return validCycles;
+}
+
+function getMasonsResult(graph,forwordPaths,cycles,nonTOuchingLoops) {
+    var delta = getDelta(graph,cycles,nonTOuchingLoops);
+    var forwordPathsDeltaGain = 0;
+    for(var i = 0; i < forwordPaths.length; i++){
+        var pathGain = getForwardGain(graph,forwordPaths[i]);
+        var validPathCycles = getValidCyclesWithPath(forwordPaths[i],cycles);
+        var pathDelta = getDelta(graph,validPathCycles,getNonTouchingLoops(validPathCycles));
+        forwordPathsDeltaGain = forwordPathsDeltaGain + pathGain*pathDelta;
+    }
+    return forwordPathsDeltaGain /(delta * 1.0);
+}
+
 function k_combinations(set, k) {
     var i, j, combs, head, tailcombs;
 
