@@ -1,5 +1,7 @@
 var nodesCount = 0;
 var edgesCount = 0;
+var nodes = []
+var edges = []
 
 function resizeGraph() {
     var container = cy.container();
@@ -12,8 +14,8 @@ function resizeGraph() {
     console.log(currentWidth + "   " + currentWidth);
 }
 
-// 0 -> should select from node
-// 1 -> should select to node
+// 0 -> should select "from" node
+// 1 -> should select "to" node
 var addBranchState = 0;
 
 var addBranchPressed = false;
@@ -21,11 +23,62 @@ var addBranchPressed = false;
 function addBranch() {
     setaddBranchPressed(!addBranchPressed)
     setRemovePressed(false)
+    setEditLabelPressed(false);
 }
+
+function editLabel() {
+    setaddBranchPressed(false);
+    setRemovePressed(false);
+    setEditLabelPressed(!editLabelPressed);
+}
+
+function setEditLabelPressed(pressed) {
+    editLabelBtn = document.getElementById('editLabel');
+    if (pressed) {
+        editLabelPressed = true;
+        changeClass(editLabelBtn, "button", " hold-button");
+    } else {
+        editLabelPressed = false;
+        changeClass(editLabelBtn, "hold-button", " button");
+    }
+}
+
+var editNodeLabelHandler = function (evt) {
+    if (editLabelPressed) {
+        var node = evt.target;
+        var newName = prompt("Please enter the new label", "");
+        if (newName == null || newName == "") {
+            console.log("User cancelled the prompt.");
+            setEditLabelPressed(false)
+            return;
+        } else {
+            console.log(newName);
+        }
+        node.data('name', newName);
+    }
+
+};
+
+var editEdgeLabelHandler = function (evt) {
+    if (editLabelPressed) {
+        var edge = evt.target;
+        var newGain = prompt("Please enter the new gain", "");
+        if (newGain == null || newGain == "") {
+            console.log("User cancelled the prompt.");
+            setEditLabelPressed(false)
+            return;
+        } else {
+            console.log(newGain);
+        }
+        edge.data('name', newGain);
+    }
+};
+
 
 function addNode() {
     setRemovePressed(false)
     setaddBranchPressed(false)
+    setEditLabelPressed(false);
     nodesCount++;
     var maxXpos = 0;
     cy.nodes().forEach(function (node) {
@@ -38,7 +91,7 @@ function addNode() {
     var newNode = {
         group: "nodes",
         data: {
-            href: 'http://cytoscape.org'
+            name: 'default'
         },
         position: {
             x: x,
@@ -54,6 +107,7 @@ function addNode() {
 
 
 removePressed = false;
+editLabelPressed = false;
 
 var removeNodeHandler = function (evt) {
     if (removePressed) {
@@ -73,14 +127,17 @@ var removeEdgeHandler = function (evt) {
 };
 
 
+// TODO
 var duplicateEdge = function (fromId, toId, gain) {
     duplicate = false;
     console.log("here 1");
-    cy.edges().forEach(function (edge) {
-        console.log(edge.data.source + "  " + edge.data.target);
-        console.log("here 1");
-        if (edge.data.source == fromId && edge.data.target == toId) {
-            edge.data.name = (Number(edge.data.name) + gain).toString();
+    cy.edges().forEach(function (ele) {
+        oldFromId = ele.data('source');
+        oldToId = ele.data('target');
+        console.log("here 2");
+        if (oldFromId == fromId && oldToId == toId) {
+            oldGain = ele.data('name');
+            ele.data('name', (Number(oldGain) + Number(gain)));
             duplicate = true;
         }
     });
@@ -105,6 +162,7 @@ var addBranchHandler = function (evt) {
             var gain = prompt("Please enter the gain value", "");
             if (gain == null || gain == "") {
                 console.log("User cancelled the prompt.");
+                setaddBranchPressed(false)
                 return;
             } else {
                 console.log(gain)
@@ -166,6 +224,7 @@ function setaddBranchPressed(pressed) {
 
 function activateRemove() {
     setaddBranchPressed(false);
+    setEditLabelPressed(false);
     setRemovePressed(!removePressed);
 }
 
@@ -193,6 +252,7 @@ function changeClass(object, oldClass, newClass) {
 function clearAll() {
     setaddBranchPressed(false)
     setRemovePressed(false)
+    setEditLabelPressed(false);
     cy.nodes().forEach(function (ele) {
         cy.remove(ele);
     });
@@ -301,6 +361,8 @@ console.log("hey");
 cy.on('tap', 'node', removeNodeHandler);
 cy.on('tap', 'edge', removeEdgeHandler);
 cy.on('tap', 'node', addBranchHandler);
+cy.on('tap', 'node', editNodeLabelHandler);
+cy.on('tap', 'edge', editEdgeLabelHandler);
 
 resizeGraph();
 // adapt the stage on any window resize
