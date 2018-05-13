@@ -3,7 +3,9 @@
 // we need one object (= 1 Constructor Function) : SignalFlowGraph
 
 function tryo(){
-    var g = new graphlib.Graph();
+  //  var g = new graphlib.Graph();
+    var Graph = require("./graphlib").Graph;
+    var g = new Graph();
     g.setNode("a","a");
     g.setNode("b","b");
     g.setNode("c","c");
@@ -30,8 +32,9 @@ function tryo(){
     var forwordPaths = getForwordPaths(g,stack,"a");
     var cycles = getCycles(g);
     var nontouching = getNonTouchingLoops(cycles);
-    var result = getMasonsResult(g,forwordPaths,cycles,nontouching)
+    var result = getMasonsResult(g,forwordPaths,cycles,nontouching);
     this.console.log(result);
+
     // how to get delta
     var delta = getDelta(g,cycles,nontouching);
 
@@ -39,6 +42,13 @@ function tryo(){
     var validPathCycles = getValidCyclesWithPath(forwordPaths[0],cycles);
     var pathDelta = getDelta(g,validPathCycles,getNonTouchingLoops(validPathCycles));
 
+    //how to get pathsNames
+    var pathsBynames = getNames(g,forwordPaths);//forordPaths = [[a,b,c,d],[e,f,g]]
+    var cyclesNames = getNames(g,cycles); //cycles = [[a,b,c,d],[e,f,g]]
+
+    //how to getNontouchingNames
+
+    var nonTouchingNames = getNonTouchingLoopsNames(g,nontouching);
 }
 
 
@@ -72,6 +82,18 @@ function getForwordPaths(graph,stack,startNode){
         forwordPaths.push(path);
     }
     return forwordPaths;
+}
+//call it when you need forwordpaths for name
+function getNames(graph,paths) {
+    var pathsName = [];
+    for(var i = 0; i < paths.length; i++){
+        var path = [];
+        for (var j = 0; j < paths[i].length; j++){
+            path.push(graph.node(paths[i][j]));
+        }
+        pathsName.push(path);
+    }
+    return pathsName;
 }
 
 
@@ -112,6 +134,19 @@ function getNonTouchingLoops(cycles){
     }
     return nonTouchingLoops;
 }
+
+function getNonTouchingLoopsNames(graph,nontouchingLoops) {
+    var nonTouchingNames = [];
+    for(var i = 0; i < nontouchingLoops.length; i++){
+        var iThNonTouching = [];
+        for(var j = 0; j < nontouchingLoops[i].length; j++){
+            iThNonTouching.push(getNames(graph,nontouchingLoops[i][j]));
+        }
+        nonTouchingNames.push(iThNonTouching);
+    }
+    return nonTouchingNames;
+}
+
 
 
 //return the delta of nontouching loops u give
@@ -320,3 +355,4 @@ function k_combinations(set, k) {
     }
     return combs;
 }
+tryo();
