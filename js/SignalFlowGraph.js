@@ -3,8 +3,7 @@
 // we need one object (= 1 Constructor Function) : SignalFlowGraph
 
 function tryo(){
-    var Graph = require("./graphlib").Graph;
-    var g = new Graph();
+    var g = new graphlib.Graph();
     g.setNode("a","a");
     g.setNode("b","b");
     g.setNode("c","c");
@@ -34,11 +33,11 @@ function tryo(){
     var result = getMasonsResult(g,forwordPaths,cycles,nontouching)
     this.console.log(result);
     // how to get delta
-    var delta = getDelta(graph,cycles,nonTOuchingLoops);
+    var delta = getDelta(g,cycles,nontouching);
 
     //how to get delta 1
-    var validPathCycles = getValidCyclesWithPath(forwordPaths[i],cycles);
-    var pathDelta = getDelta(graph,validPathCycles,getNonTouchingLoops(validPathCycles));
+    var validPathCycles = getValidCyclesWithPath(forwordPaths[0],cycles);
+    var pathDelta = getDelta(g,validPathCycles,getNonTouchingLoops(validPathCycles));
 
 }
 
