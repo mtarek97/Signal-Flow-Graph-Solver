@@ -25,28 +25,25 @@ function tryo(){
     g.setEdge("d", "c",{ k: -1 });
     g.setEdge("g", "g",{ k: -1 });
 
+
+    // how to get the final result
     var stack = [];
     var forwordPaths = getForwordPaths(g,stack,"a");
     var cycles = getCycles(g);
     var nontouching = getNonTouchingLoops(cycles);
     var result = getMasonsResult(g,forwordPaths,cycles,nontouching)
     this.console.log(result);
+    // how to get delta
+    var delta = getDelta(graph,cycles,nonTOuchingLoops);
 
+    //how to get delta 1
+    var validPathCycles = getValidCyclesWithPath(forwordPaths[i],cycles);
+    var pathDelta = getDelta(graph,validPathCycles,getNonTouchingLoops(validPathCycles));
 
-    /*for (var i = 0; i < data.length; i++){
-        for (var j = 0; j < data[i].length; j++){
-            this.console.log(data[i][j]);
-        }
-        this.console.log("\n");
-        var path = data[0];
-        this.console.log(getForwardGain(g,path));
-    }*/
-    //this.console.log(getCycleGain(g,data[0]));
-    //this.console.log(getEdgeGian(g,"a","b"));*/
 }
 
 
-
+//return the forword paths
 function getForwordPaths(graph,stack,startNode){
     var outEdges = graph.outEdges(startNode);
     stack.push(startNode);
@@ -78,6 +75,99 @@ function getForwordPaths(graph,stack,startNode){
     return forwordPaths;
 }
 
+
+//main return the loops
+function getCycles(graph){
+
+    var nodes = graph.nodes();
+    var cycles = []
+    var stacks = []
+    for(var i = 0; i < nodes.length; i++){
+        var stack = []
+        var cycle = getCycle(graph, nodes[i], stacks, stack);
+        for(var j = 0; j < cycle.length; j++){
+            cycles.push(cycle[j]);
+        }
+        stacks.push(nodes[i]);
+    }
+    return cycles;
+}
+
+//return non touching loops
+function getNonTouchingLoops(cycles){
+    var i = 2;
+    var nonTouchingLoops = [];
+    while(true){
+        var allICompinations = k_combinations(cycles,i);
+        var nontouchingICompination = []
+        for(var j = 0; j < allICompinations.length; j++){
+            if(isNonTouching(allICompinations[j])){
+                nontouchingICompination.push(allICompinations[j]);
+            }
+        }
+        if(nontouchingICompination.length == 0){
+            break;
+        }
+        nonTouchingLoops.push(nontouchingICompination);
+        i++
+    }
+    return nonTouchingLoops;
+}
+
+
+//return the delta of nontouching loops u give
+function getDelta(graph,cycles,nontouchingLoops) {
+    var delta = 1;
+    if(cycles.length == 0){
+        return delta;
+    }else {
+        var sum = 0;
+        for(var i = 0; i < cycles.length; i++){
+            sum = sum + getCycleGain(graph,cycles[i]);
+        }
+        delta = delta - sum;
+        var flag = 1;
+        var sumOfmultipliedLoops = getSumOfMultipliedLoops(graph,nontouchingLoops);
+        for (var i = 0; i < sumOfmultipliedLoops.length; i++){
+            delta = delta + flag * sumOfmultipliedLoops[i];
+            flag = flag * -1;
+        }
+    }
+    return delta;
+}
+//return the cycles that dosent touch the path
+function getValidCyclesWithPath(path,cycles) {
+    var validCycles = []
+    for(var i = 0; i < cycles.length; i++){
+        var flag = 0;
+        for (var j = 0; j < path.length; j++){
+            if(cycles[i].indexOf(path[j]) != -1){
+                flag ++;
+                break;
+            }
+        }
+        if(flag == 0){
+            validCycles.push(cycles[i]);
+        }
+    }
+    return validCycles;
+}
+// return the result of masons rule
+function getMasonsResult(graph,forwordPaths,cycles,nonTOuchingLoops) {
+    var delta = getDelta(graph,cycles,nonTOuchingLoops);
+    var forwordPathsDeltaGain = 0;
+    for(var i = 0; i < forwordPaths.length; i++){
+        var pathGain = getForwardGain(graph,forwordPaths[i]);
+        var validPathCycles = getValidCyclesWithPath(forwordPaths[i],cycles);
+        var pathDelta = getDelta(graph,validPathCycles,getNonTouchingLoops(validPathCycles));
+        forwordPathsDeltaGain = forwordPathsDeltaGain + pathGain*pathDelta;
+    }
+    return forwordPathsDeltaGain /(delta * 1.0);
+}
+
+
+
+//private function that i'm using in my code
 function getCycle(graph,startNode,nodesStack,stack){
     var outEdges = graph.outEdges(startNode);
     var data = [];
@@ -107,22 +197,7 @@ function getCycle(graph,startNode,nodesStack,stack){
     return data;
 }
 
-function getCycles(graph){
-
-    var nodes = graph.nodes();
-    var cycles = []
-    var stacks = []
-    for(var i = 0; i < nodes.length; i++){
-        var stack = []
-        var cycle = getCycle(graph, nodes[i], stacks, stack);
-        for(var j = 0; j < cycle.length; j++){
-            cycles.push(cycle[j]);
-        }
-        stacks.push(nodes[i]);
-    }
-    return cycles;
-}
-
+//private function that i'm using in my code
 function isNonTouching(cycles){
     for(var i = 0; i < cycles.length; i++){
         for (var j = i+1; j < cycles.length; j++){
@@ -134,6 +209,7 @@ function isNonTouching(cycles){
     return true;
 }
 
+//private function that i'm using in my code
 function isTwoNonTouching(cycle1,cycle2) {
     for (var i = 0; i < cycle1.length; i++){
         for (var j = 0; j < cycle2.length; j++){
@@ -145,25 +221,7 @@ function isTwoNonTouching(cycle1,cycle2) {
     return true;
 }
 
-function getNonTouchingLoops(cycles){
-    var i = 2;
-    var nonTouchingLoops = [];
-    while(true){
-        var allICompinations = k_combinations(cycles,i);
-        var nontouchingICompination = []
-        for(var j = 0; j < allICompinations.length; j++){
-            if(isNonTouching(allICompinations[j])){
-                nontouchingICompination.push(allICompinations[j]);
-            }
-        }
-        if(nontouchingICompination.length == 0){
-            break;
-        }
-        nonTouchingLoops.push(nontouchingICompination);
-        i++
-    }
-    return nonTouchingLoops;
-}
+
 
 function getForwardGain(graph,path) {
     var gain = 1;
@@ -184,25 +242,6 @@ function getEdgeGian(graph, node1, node2){
     return graph.edge(node1,node2)['k'];
 }
 
-function getDelta(graph,cycles,nontouchingLoops) {
-    var delta = 1;
-    if(cycles.length == 0){
-        return delta;
-    }else {
-        var sum = 0;
-        for(var i = 0; i < cycles.length; i++){
-            sum = sum + getCycleGain(graph,cycles[i]);
-        }
-        delta = delta - sum;
-        var flag = 1;
-        var sumOfmultipliedLoops = getSumOfMultipliedLoops(graph,nontouchingLoops);
-        for (var i = 0; i < sumOfmultipliedLoops.length; i++){
-            delta = delta + flag * sumOfmultipliedLoops[i];
-            flag = flag * -1;
-        }
-    }
-    return delta;
-}
 
 function getSumOfMultipliedLoops(graph,nontouchingLoops) {
     var sumOfmultipliedLoops = [];
@@ -224,34 +263,7 @@ function getMultipliedLoops(graph,arrayOfLoops) {
     return gain;
 }
 
-function getValidCyclesWithPath(path,cycles) {
-    var validCycles = []
-    for(var i = 0; i < cycles.length; i++){
-        var flag = 0;
-        for (var j = 0; j < path.length; j++){
-            if(cycles[i].indexOf(path[j]) != -1){
-                flag ++;
-                break;
-            }
-        }
-        if(flag == 0){
-            validCycles.push(cycles[i]);
-        }
-    }
-    return validCycles;
-}
 
-function getMasonsResult(graph,forwordPaths,cycles,nonTOuchingLoops) {
-    var delta = getDelta(graph,cycles,nonTOuchingLoops);
-    var forwordPathsDeltaGain = 0;
-    for(var i = 0; i < forwordPaths.length; i++){
-        var pathGain = getForwardGain(graph,forwordPaths[i]);
-        var validPathCycles = getValidCyclesWithPath(forwordPaths[i],cycles);
-        var pathDelta = getDelta(graph,validPathCycles,getNonTouchingLoops(validPathCycles));
-        forwordPathsDeltaGain = forwordPathsDeltaGain + pathGain*pathDelta;
-    }
-    return forwordPathsDeltaGain /(delta * 1.0);
-}
 
 function k_combinations(set, k) {
     var i, j, combs, head, tailcombs;
@@ -309,7 +321,3 @@ function k_combinations(set, k) {
     }
     return combs;
 }
-
-
-
-tryo()
