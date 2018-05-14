@@ -43,3 +43,9 @@ body {
     background-color: dodgerblue;
     color: white;
 }
+
+#close-image img {
+    display: block;
+    height: 130px;
+    width: 100px;
+}

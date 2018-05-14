@@ -1,18 +1,8 @@
 var nodesCount = 0;
 var edgesCount = 0;
-var nodes = []
-var edges = []
+var nodesIdsCount = 0;
+var edgesIdsCount = 0;
 
-function resizeGraph() {
-    var container = cy.container();
-    container.style.width = '100%';
-    container.style.height = '100%';
-    cy.resize();
-    cy.fit();
-    var currentWidth = container.clientWidth;
-    var currentHeight = container.clientHeight;
-    console.log(currentWidth + "   " + currentWidth);
-}
 
 // 0 -> should select "from" node
 // 1 -> should select "to" node
@@ -20,16 +10,169 @@ var addBranchState = 0;
 
 var addBranchPressed = false;
 
+
+/*function animatePaths(paths) {
+    for (i = 0; i < paths.length; i++) {
+        for (j = 0; j < paths[i].length; j++) {
+            var node = cy.nodes("[id='" + paths[i][j] + "']");
+            node.addClass('highlighted');
+
+            function sleepFor(sleepDuration) {
+                var now = new Date().getTime();
+                while (new Date().getTime() < now + sleepDuration) {}
+            }
+            sleepFor(2000);
+            console.log("hello js sleep !");
+
+        }
+    }
+}*/
+
+function getNodeSolvingId(nodeId) {
+    var node = cy.nodes("[id='" + nodeId + "']");
+    var id;
+    if (node.data('isStart')) {
+        id = "Start";
+    } else if (node.data('isEnd')) {
+        id = "End";
+    } else {
+        id = node.data('id');
+    }
+    return id;
+}
+
+function showOutput(result, paths, cycles, nonTouchingLoops, delta, pathsDelta) {
+    // result
+    resultText = document.getElementById('result');
+    resultText.innerHTML = "overall gain = " + result;
+
+    //paths
+    forwardPathsText = document.getElementById('forwardPaths');
+    forwardPathsText.innerHTML = "";
+    for (i = 1; i <= paths.length; i++) {
+        forwardPathsText.innerHTML += "M" + i + " : {" + paths[i - 1].join('-') + "}<br>";
+    }
+
+    //cycles
+    cyclesText = document.getElementById('cycles');
+    cyclesText.innerHTML = "";
+    for (i = 1; i <= cycles.length; i++) {
+        cyclesText.innerHTML += "L" + i + " : {" + cycles[i - 1].join('-') + "}<br>";
+    }
+
+    //non touching loops
+    nonTouchingLoopsText = document.getElementById('nonTouchingLoops');
+    //nonTouchingLoopsText.innerHTML = joinSubArrays(nonTouchingLoops, '<br> ');
+    for (i = 1; i <= nonTouchingLoops.length; i++) {
+        nonTouchingLoopsText.innerHTML += i + 1 + "-non touching : <br>";
+        for (j = 1; j <= nonTouchingLoops[i - 1].length; j++) {
+            for (k = 1; k <= nonTouchingLoops[i - 1][j - 1].length; k++) {
+                nonTouchingLoopsText.innerHTML += "{" + nonTouchingLoops[i - 1][j - 1][k - 1].join('-') + "}  &nbsp;";
+            }
+            nonTouchingLoopsText.innerHTML += "<br>";
+        }
+    }
+
+    //deltas
+    deltasText = document.getElementById('deltas');
+    deltasText.innerHTML = "";
+    deltasText.innerHTML += "&Delta; = " + delta + "<br>";
+    console.log(pathsDelta.length);
+    for (i = 1; i <= pathsDelta.length; i++) {
+        deltasText.innerHTML += "&Delta;" + i + " = " + pathsDelta[i - 1].toString() + "<br>";
+    }
+
+}
+
+function solve() {
+    if (!nodeAlreadySelected('isStart')) {
+        alert("you must set the source node");
+        return;
+    }
+    if (!nodeAlreadySelected('isEnd')) {
+        alert("you must set the end node");
+        return;
+    }
+    var g = new graphlib.Graph();
+    // add nodes
+    cy.nodes().forEach(function (node) {
+        name = node.data('name');
+        id = getNodeSolvingId(node.data('id'));
+        console.log("node added, id : " + id + " ,name: " + name)
+        g.setNode(id, name);
+    });
+    //add edges
+    cy.edges().forEach(function (edge) {
+        gain = Number(edge.data('name'));
+        source = getNodeSolvingId(edge.data('source'));
+        target = getNodeSolvingId(edge.data('target'));
+        g.setEdge(source, target, {
+            k: gain
+        });
+        console.log("edge added, start : " + source + " ,target: " + target + " ,gain:" + gain)
+    });
+
+    // how to get the final result
+    var stack = [];
+    var forwardPaths = getForwordPaths(g, stack, "Start");
+    var cycles = getCycles(g);
+    var nontouching = getNonTouchingLoops(cycles);
+    var result = getMasonsResult(g, forwardPaths, cycles, nontouching);
+    console.log(result);
+
+    // show output
+    var pathsByNames = getNames(g, forwardPaths);
+    var cyclesByNames = getNames(g, cycles);
+    var nonTouchingLoopsByNames = getNonTouchingLoopsNames(g, nontouching);
+    console.log(pathsByNames);
+    console.log(cyclesByNames);
+    console.log(nonTouchingLoopsByNames);
+
+    // how to get delta
+    var delta = getDelta(g, cycles, nontouching);
+    console.log("delta : " + delta);
+
+    // how to get delta i's
+    pathsDelta = []
+    for (i = 0; i < forwardPaths.length; i++) {
+        var validPathCycles = getValidCyclesWithPath(forwardPaths[i], cycles);
+        var pathDelta = getDelta(g, validPathCycles, getNonTouchingLoops(validPathCycles));
+        pathsDelta.push(pathDelta)
+        console.log("delta" + i + " : " + pathDelta);
+    }
+
+    showOutput(result, pathsByNames, cyclesByNames, nonTouchingLoopsByNames, delta, pathsDelta);
+    // animatePaths(forwardPaths);
+
+
+
+}
+
+function snapShot() {
+    var jpg64 = cy.jpg();
+    var a = document.getElementById('sfg');
+    var url = jpg64.replace(/^data:image\/[^;]+/, 'data:application/octet-stream');
+    a.href = url;
+    a.click()
+
+
+}
+
+
 function addBranch() {
     setaddBranchPressed(!addBranchPressed)
     setRemovePressed(false)
     setEditLabelPressed(false);
+    setEndPressed(false);
+    setStartPressed(false);
 }
 
 function editLabel() {
     setaddBranchPressed(false);
     setRemovePressed(false);
     setEditLabelPressed(!editLabelPressed);
+    setEndPressed(false);
+    setStartPressed(false);
 }
 
 function setEditLabelPressed(pressed) {
@@ -43,12 +186,26 @@ function setEditLabelPressed(pressed) {
     }
 }
 
+function duplicateNodeName(name) {
+    var duplicate = false;
+    cy.nodes().forEach(function (ele) {
+        if (ele.data('name') == name) {
+            duplicate = true;
+        }
+    });
+    return duplicate;
+}
+
 var editNodeLabelHandler = function (evt) {
     if (editLabelPressed) {
         var node = evt.target;
         var newName = prompt("Please enter the new label", "");
         if (newName == null || newName == "") {
             console.log("User cancelled the prompt.");
+            setEditLabelPressed(false)
+            return;
+        } else if (duplicateNodeName(newName)) {
+            alert("duplicate name");
             setEditLabelPressed(false)
             return;
         } else {
@@ -74,12 +231,110 @@ var editEdgeLabelHandler = function (evt) {
     }
 };
 
+startPressed = false;
+endPressed = false;
+
+
+function setStartPressed(pressed) {
+    setStartBtn = document.getElementById('start');
+    if (pressed) {
+        startPressed = true;
+        changeClass(setStartBtn, "button", " hold-button");
+    } else {
+        startPressed = false;
+        changeClass(setStartBtn, "hold-button", " button");
+    }
+}
+
+function setEndPressed(pressed) {
+    setEndBtn = document.getElementById('end');
+    if (pressed) {
+        endPressed = true;
+        changeClass(setEndBtn, "button", " hold-button");
+    } else {
+        endPressed = false;
+        changeClass(setEndBtn, "hold-button", " button");
+    }
+}
+
+function setStart() {
+    setaddBranchPressed(false)
+    setRemovePressed(false)
+    setEditLabelPressed(false);
+    setEndPressed(false);
+    setStartPressed(!startPressed);
+}
+
+function setEnd() {
+    setaddBranchPressed(false)
+    setRemovePressed(false)
+    setEditLabelPressed(false);
+    setEndPressed(!endPressed);
+    setStartPressed(false);
+}
+
+function nodeAlreadySelected(state) {
+    selected = false;
+    cy.nodes().forEach(function (ele) {
+        if (ele.data(state)) {
+            selected = true;
+        }
+    });
+    return selected;
+}
+
+// blue #1970fc
+
+var setStartHandler = function (evt) {
+    if (startPressed) {
+        var node = evt.target;
+        if (node.data('isStart')) {
+            node.data('isStart', false)
+            node.style('background-color', '#1970fc')
+        } else if (node.data('isEnd')) {
+            alert("start node and end node can't be the same!")
+        } else {
+            if (nodeAlreadySelected('isStart')) {
+                alert("you already selected the start node!")
+            } else {
+                node.data('isStart', true)
+                node.style('background-color', 'green')
+                console.log("start node is " + node.id())
+            }
+        }
+    }
+
+};
+
+var setEndHandler = function (evt) {
+    if (endPressed) {
+        var node = evt.target;
+        if (node.data('isEnd')) {
+            node.data('isEnd', false)
+            node.style('background-color', '#1970fc')
+        } else if (node.data('isStart')) {
+            alert("start node and end node can't be the same!")
+        } else {
+            if (nodeAlreadySelected('isEnd')) {
+                alert("you already selected the end node!")
+            } else {
+                node.data('isEnd', true)
+                node.style('background-color', 'red')
+                console.log("end node is " + node.id())
+            }
+        }
+    }
+
+};
 
 function addNode() {
     setRemovePressed(false)
     setaddBranchPressed(false)
     setEditLabelPressed(false);
+    setEndPressed(false);
+    setStartPressed(false);
     nodesCount++;
+    nodesIdsCount++;
     var maxXpos = 0;
     cy.nodes().forEach(function (node) {
         if (node.position('x') > maxXpos) {
@@ -91,15 +346,16 @@ function addNode() {
     var newNode = {
         group: "nodes",
         data: {
-            name: 'default'
+            id: "node" + nodesIdsCount.toString(),
+            name: nodesCount.toString(),
+            isStart: false,
+            isEnd: false
         },
         position: {
             x: x,
             y: y
         }
     };
-    newNode.data.id = "node" + nodesCount.toString();
-    newNode.data.name = nodesCount.toString();
     console.log(newNode.data.id);
     cy.add(newNode);
     resizeGraph();
@@ -113,6 +369,7 @@ var removeNodeHandler = function (evt) {
     if (removePressed) {
         var node = evt.target;
         cy.remove(node);
+        nodesCount--;
         console.log(node.id() + " has been removed");
     }
 
@@ -122,6 +379,7 @@ var removeEdgeHandler = function (evt) {
     if (removePressed) {
         var edge = evt.target;
         cy.remove(edge);
+        edgesCount--;
         console.log(edge.id() + " has been removed");
     }
 };
@@ -154,6 +412,7 @@ var addBranchHandler = function (evt) {
         } else if (addBranchState == 1) {
             toNode = evt.target;
             console.log("second")
+            //TODO
             if (fromNode.id() == toNode.id()) {
                 alert("Signal flow graph can't have self loops!")
                 setaddBranchPressed(false)
@@ -169,21 +428,20 @@ var addBranchHandler = function (evt) {
             }
             duplicate = duplicateEdge(fromNode.id(), toNode.id(), gain);
             if (duplicate) {
-                alert("gain has been added to the duplicate branch")
                 setaddBranchPressed(false)
                 return;
             }
             edgesCount++;
+            edgesIdsCount++;
             var newEdge = {
                 group: "edges",
                 data: {
-                    href: 'http://cytoscape.org'
+                    id: "edge" + edgesIdsCount.toString(),
+                    name: gain,
+                    source: fromNode.id(),
+                    target: toNode.id()
                 }
             };
-            newEdge.data.id = "edge" + edgesCount.toString();
-            newEdge.data.name = gain;
-            newEdge.data.source = fromNode.id();
-            newEdge.data.target = toNode.id();
             console.log(newEdge.data.id);
             cy.add(newEdge);
             newEdge = cy.getElementById(newEdge.data.id)
@@ -226,6 +484,8 @@ function activateRemove() {
     setaddBranchPressed(false);
     setEditLabelPressed(false);
     setRemovePressed(!removePressed);
+    setEndPressed(false);
+    setStartPressed(false);
 }
 
 
@@ -236,26 +496,17 @@ function printAllnode() {
     });
 }
 
-
-function changeClass(object, oldClass, newClass) {
-    // remove:
-    //object.className = object.className.replace( /(?:^|\s)oldClass(?!\S)/g , '' );
-    // replace:
-    var regExp = new RegExp('(?:^|\\s)' + oldClass + '(?!\\S)', 'g');
-    object.className = object.className.replace(regExp, newClass);
-    // add
-    //object.className += " "+newClass;
-}
-
-
-
 function clearAll() {
     setaddBranchPressed(false)
     setRemovePressed(false)
     setEditLabelPressed(false);
+    setEndPressed(false);
+    setStartPressed(false);
     cy.nodes().forEach(function (ele) {
         cy.remove(ele);
     });
+    nodesCount = 0;
+    edgesCount = 0;
     console.log("graph has been destroyed!");
 }
 
@@ -275,8 +526,6 @@ var cy = cytoscape({
             'content': 'data(name)',
             'text-valign': 'center',
             'color': 'white',
-            'text-outline-width': 2,
-            'text-outline-color': '#1970fc',
             'background-color': '#1970fc',
         })
         .selector(':selected')
@@ -300,6 +549,13 @@ var cy = cytoscape({
             'target-arrow-shape': 'triangle',
             'line-color': '#6FB1FC',
             'target-arrow-color': '#6FB1FC'
+        }).selector('.highlighted')
+        .css({
+            'background-color': 'black',
+            'line-color': 'gray',
+            'target-arrow-color': 'gray',
+            'transition-property': 'background-color, line-color, target-arrow-color',
+            'transition-duration': '0.5s'
         }),
 
     //    elements: {
@@ -363,6 +619,8 @@ cy.on('tap', 'edge', removeEdgeHandler);
 cy.on('tap', 'node', addBranchHandler);
 cy.on('tap', 'node', editNodeLabelHandler);
 cy.on('tap', 'edge', editEdgeLabelHandler);
+cy.on('tap', 'node', setStartHandler);
+cy.on('tap', 'node', setEndHandler);
 
 resizeGraph();
 // adapt the stage on any window resize
