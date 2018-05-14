@@ -10,24 +10,6 @@ var addBranchState = 0;
 
 var addBranchPressed = false;
 
-
-/*function animatePaths(paths) {
-    for (i = 0; i < paths.length; i++) {
-        for (j = 0; j < paths[i].length; j++) {
-            var node = cy.nodes("[id='" + paths[i][j] + "']");
-            node.addClass('highlighted');
-
-            function sleepFor(sleepDuration) {
-                var now = new Date().getTime();
-                while (new Date().getTime() < now + sleepDuration) {}
-            }
-            sleepFor(2000);
-            console.log("hello js sleep !");
-
-        }
-    }
-}*/
-
 function getNodeSolvingId(nodeId) {
     var node = cy.nodes("[id='" + nodeId + "']");
     var id;
@@ -154,8 +136,6 @@ function snapShot() {
     var url = jpg64.replace(/^data:image\/[^;]+/, 'data:application/octet-stream');
     a.href = url;
     a.click()
-
-
 }
 
 
@@ -223,6 +203,9 @@ var editEdgeLabelHandler = function (evt) {
         if (newGain == null || newGain == "") {
             console.log("User cancelled the prompt.");
             setEditLabelPressed(false)
+            return;
+        } else if (isNaN(newGain)) {
+            alert("Gain value must be a number");
             return;
         } else {
             console.log(newGain);
@@ -384,8 +367,6 @@ var removeEdgeHandler = function (evt) {
     }
 };
 
-
-// TODO
 var duplicateEdge = function (fromId, toId, gain) {
     duplicate = false;
     console.log("here 1");
@@ -412,15 +393,14 @@ var addBranchHandler = function (evt) {
         } else if (addBranchState == 1) {
             toNode = evt.target;
             console.log("second")
-            //TODO
-            if (fromNode.id() == toNode.id()) {
-                alert("Signal flow graph can't have self loops!")
-                setaddBranchPressed(false)
-                return;
-            }
             var gain = prompt("Please enter the gain value", "");
+            gain = gain.trim();
             if (gain == null || gain == "") {
                 console.log("User cancelled the prompt.");
+                setaddBranchPressed(false)
+                return;
+            } else if (isNaN(gain)) {
+                alert("Gain value must be a number!");
                 setaddBranchPressed(false)
                 return;
             } else {
@@ -445,6 +425,15 @@ var addBranchHandler = function (evt) {
             console.log(newEdge.data.id);
             cy.add(newEdge);
             newEdge = cy.getElementById(newEdge.data.id)
+            if (newEdge.isLoop()) {
+                newEdge.style('loop-direction', '0deg');
+                newEdge.style('loop-sweep', '-45deg');
+                newEdge.style('control-point-distances', [-43, 50, -43]);
+                console.log("loop");
+                resizeGraph();
+                setaddBranchPressed(false);
+                return;
+            }
             diff = Math.abs(fromNode.position('x') - toNode.position('x'))
             controlPoints = [(-100 - 5 * diff) / 8, (-100 - 3 * diff) / 8, (100 + diff) / 6, (-100 - 3 * diff) / 8, (-100 - 5 * diff) / 8]
             console.log(controlPoints)
@@ -557,57 +546,6 @@ var cy = cytoscape({
             'transition-property': 'background-color, line-color, target-arrow-color',
             'transition-duration': '0.5s'
         }),
-
-    //    elements: {
-    //        nodes: [
-    //            {
-    //                data: {
-    //                    id: 'node0',
-    //                    name: 'Labib',
-    //                }
-    //            },
-    //            {
-    //                data: {
-    //                    id: 'node1',
-    //                    name: 'A',
-    //                }
-    //            },
-    //            {
-    //                data: {
-    //                    id: 'node2',
-    //                    name: 'B',
-    //                }
-    //            }
-    //
-    //    ],
-    //        edges: [
-    //            {
-    //                data: {
-    //                    id: 'edge0',
-    //                    source: 'node0',
-    //                    target: 'node2',
-    //                    name: '245'
-    //                }
-    //            }
-    //            , {
-    //                data: {
-    //                    id: 'edge1',
-    //                    source: 'node1',
-    //                    target: 'node2',
-    //                    name: '6'
-    //                }
-    //            },
-    //            {
-    //                data: {
-    //                    id: 'edge2',
-    //                    source: 'node2',
-    //                    target: 'node0',
-    //                    name: '456'
-    //                }
-    //            }
-    //    ]
-    //    },
-
     layout: {
         name: 'grid'
     }

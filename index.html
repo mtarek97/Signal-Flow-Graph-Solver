@@ -27,45 +27,30 @@
 
         <div class="jumbotron">
 
-            <!-- Nav tabs -->
-            <ul class="nav nav-pills">
-                <li class="nav-item">
-                    <a class="nav-link active" data-toggle="tab" href="#dragdrop">Drag &amp; Drop Mode</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" href="#classic">Classic Mode</a>
-                </li>
-            </ul>
-
             <!-- Tab panes -->
-            <div class="tab-content">
-                <div class="tab-pane active container" id="dragdrop"><br>
+            <div class="tab-pane active container" id="dragdrop"><br>
 
-                    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                        <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <button type="button" class="btn button btn-outline-primary" onclick="addNode()">Add Node</button>
-                            <button type="button" class="btn button btn-outline-primary" id="addBranch" onclick="addBranch()">Add Branch</button>
-                            <button type="button" class="btn button btn-outline-primary" id="editLabel" onclick="editLabel()">Edit Label</button>
-                            <button type="button" class="btn button btn-outline-primary" id="remove" onclick="activateRemove()">Remove</button>
-                            <button type="button" class="btn btn-outline-danger" onclick="clearAll()">Clear All</button>
-                        </div>
-                        <div class="btn-group mr-2" role="group" aria-label="Second group">
-                            <button type="button" class="btn button button btn-outline-primary" onclick="resizeGraph()">Fit</button>
-                            <button type="button" class="btn button button btn-outline-primary" onclick="snapShot()"><img src="assets/SnapshotIcon.png" width="20" /></button>
-                        </div>
-                        <div class="btn-group" role="group" aria-label="Third group">
-                            <button type="button" class="btn button btn-outline-primary" id="start" onclick="setStart()">Set Source</button>
-                            <button type="button" class="btn button btn-outline-primary" id="end" onclick="setEnd()">Set End</button>
-                            <button type="button" class="btn btn-outline-success" onclick="solve()">Solve</button>
-                        </div>
+                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <button type="button" class="btn button btn-outline-primary" onclick="addNode()">Add Node</button>
+                        <button type="button" class="btn button btn-outline-primary" id="addBranch" onclick="addBranch()">Add Branch</button>
+                        <button type="button" class="btn button btn-outline-primary" id="editLabel" onclick="editLabel()">Edit Label</button>
+                        <button type="button" class="btn button btn-outline-primary" id="remove" onclick="activateRemove()">Remove</button>
+                        <button type="button" class="btn btn-outline-danger" onclick="clearAll()">Clear All</button>
                     </div>
-
-                    <div id="cy">
-
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        <button type="button" class="btn button button btn-outline-primary" onclick="resizeGraph()">Fit</button>
+                        <button type="button" class="btn button button btn-outline-primary" onclick="snapShot()"><img src="assets/SnapshotIcon.png" width="20" /></button>
+                    </div>
+                    <div class="btn-group" role="group" aria-label="Third group">
+                        <button type="button" class="btn button btn-outline-primary" id="start" onclick="setStart()">Set Source</button>
+                        <button type="button" class="btn button btn-outline-primary" id="end" onclick="setEnd()">Set End</button>
+                        <button type="button" class="btn btn-outline-success" onclick="solve()">Solve</button>
                     </div>
                 </div>
-                <div class="tab-pane container" id="classic"><br>
-                    <p>Taking input from the user as a text then draw the static graph on one shot</p>
+
+                <div id="cy">
+
                 </div>
             </div>
         </div>
