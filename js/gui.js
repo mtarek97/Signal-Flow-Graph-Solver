@@ -44,6 +44,7 @@ function showOutput(result, paths, cycles, nonTouchingLoops, delta, pathsDelta) 
 
     //non touching loops
     nonTouchingLoopsText = document.getElementById('nonTouchingLoops');
+    nonTouchingLoopsText.innerHTML = "";
     //nonTouchingLoopsText.innerHTML = joinSubArrays(nonTouchingLoops, '<br> ');
     for (i = 1; i <= nonTouchingLoops.length; i++) {
         nonTouchingLoopsText.innerHTML += i + 1 + "-non touching : <br>";
@@ -425,8 +426,13 @@ var addBranchHandler = function (evt) {
             cy.add(newEdge);
             newEdge = cy.getElementById(newEdge.data.id)
             if (newEdge.isLoop()) {
-                newEdge.style('loop-direction', '0deg');
-                newEdge.style('loop-sweep', '-45deg');
+                if (gain < 0) {
+                    newEdge.style('loop-direction', '0deg');
+                } else {
+                    newEdge.style('loop-direction', '180deg');
+                }
+
+                newEdge.style('loop-sweep', '45deg');
                 newEdge.style('control-point-distances', [-43, 50, -43]);
                 console.log("loop");
                 resizeGraph();
@@ -537,13 +543,6 @@ var cy = cytoscape({
             'target-arrow-shape': 'triangle',
             'line-color': '#6FB1FC',
             'target-arrow-color': '#6FB1FC'
-        }).selector('.highlighted')
-        .css({
-            'background-color': 'black',
-            'line-color': 'gray',
-            'target-arrow-color': 'gray',
-            'transition-property': 'background-color, line-color, target-arrow-color',
-            'transition-duration': '0.5s'
         }),
     layout: {
         name: 'grid'

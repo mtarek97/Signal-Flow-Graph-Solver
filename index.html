@@ -16,7 +16,7 @@
         <!-- about -->
         <div class="jumbotron">
 
-            <h1 class="display-4"><img src="assets/logo.png" class="rounded" alt="logo">Signal Flow Graph Solver
+            <h1 class="display-4"><img src="assets/logo.png" class="rounded" alt="logo">SFG Solver
                 <a class="github-button" href="https://github.com/MahmoudTarek97/Signal-Flow-Graph-Solver" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star ntkme/github-buttons on GitHub">Star</a></h1>
             <hr class="my-4">
             <p>A signal-flow graph (SFG), often called a Mason graph, is a specialized flow graph, a directed graph in which nodes represent system variables, and branches (edges, arcs, or arrows) represent functional connections between pairs of nodes. SFG's are most commonly used to represent signal flow in a physical system and its controller(s), forming a cyber-physical system.</p>
@@ -29,7 +29,6 @@
 
             <!-- Tab panes -->
             <div class="tab-pane active container" id="dragdrop"><br>
-
                 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="First group">
                         <button type="button" class="btn button btn-outline-primary" onclick="addNode()">Add Node</button>
@@ -47,6 +46,7 @@
                         <button type="button" class="btn button btn-outline-primary" id="end" onclick="setEnd()">Set End</button>
                         <button type="button" class="btn btn-outline-success" onclick="solve()">Solve</button>
                     </div>
+
                 </div>
 
                 <div id="cy">
