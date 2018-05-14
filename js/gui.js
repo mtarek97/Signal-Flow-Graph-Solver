@@ -352,7 +352,6 @@ var removeNodeHandler = function (evt) {
     if (removePressed) {
         var node = evt.target;
         cy.remove(node);
-        nodesCount--;
         console.log(node.id() + " has been removed");
     }
 
