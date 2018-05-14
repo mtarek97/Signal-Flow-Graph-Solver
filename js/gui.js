@@ -1,5 +1,3 @@
-var nodesCount = 0;
-var edgesCount = 0;
 var nodesIdsCount = 0;
 var edgesIdsCount = 0;
 
@@ -274,7 +272,7 @@ var setStartHandler = function (evt) {
         var node = evt.target;
         if (node.data('isStart')) {
             node.data('isStart', false)
-            node.style('background-color', '#1970fc')
+            node.data('color', '#1970fc')
         } else if (node.data('isEnd')) {
             alert("start node and end node can't be the same!")
         } else {
@@ -282,7 +280,7 @@ var setStartHandler = function (evt) {
                 alert("you already selected the start node!")
             } else {
                 node.data('isStart', true)
-                node.style('background-color', 'green')
+                node.data('color', 'green')
                 console.log("start node is " + node.id())
             }
         }
@@ -295,7 +293,7 @@ var setEndHandler = function (evt) {
         var node = evt.target;
         if (node.data('isEnd')) {
             node.data('isEnd', false)
-            node.style('background-color', '#1970fc')
+            node.data('color', '#1970fc')
         } else if (node.data('isStart')) {
             alert("start node and end node can't be the same!")
         } else {
@@ -303,7 +301,7 @@ var setEndHandler = function (evt) {
                 alert("you already selected the end node!")
             } else {
                 node.data('isEnd', true)
-                node.style('background-color', 'red')
+                node.data('color', 'red')
                 console.log("end node is " + node.id())
             }
         }
@@ -317,7 +315,6 @@ function addNode() {
     setEditLabelPressed(false);
     setEndPressed(false);
     setStartPressed(false);
-    nodesCount++;
     nodesIdsCount++;
     var maxXpos = 0;
     cy.nodes().forEach(function (node) {
@@ -331,9 +328,10 @@ function addNode() {
         group: "nodes",
         data: {
             id: "node" + nodesIdsCount.toString(),
-            name: nodesCount.toString(),
+            name: nodesIdsCount.toString(),
             isStart: false,
-            isEnd: false
+            isEnd: false,
+            color: "#1970fc"
         },
         position: {
             x: x,
@@ -362,7 +360,7 @@ var removeEdgeHandler = function (evt) {
     if (removePressed) {
         var edge = evt.target;
         cy.remove(edge);
-        edgesCount--;
+        edgesIdsCount--;
         console.log(edge.id() + " has been removed");
     }
 };
@@ -411,7 +409,6 @@ var addBranchHandler = function (evt) {
                 setaddBranchPressed(false)
                 return;
             }
-            edgesCount++;
             edgesIdsCount++;
             var newEdge = {
                 group: "edges",
@@ -419,7 +416,10 @@ var addBranchHandler = function (evt) {
                     id: "edge" + edgesIdsCount.toString(),
                     name: gain,
                     source: fromNode.id(),
-                    target: toNode.id()
+                    target: toNode.id(),
+                    controlPoints: [],
+                    loopDirection: '-45deg',
+                    loopSweep: '-90deg'
                 }
             };
             console.log(newEdge.data.id);
@@ -427,13 +427,13 @@ var addBranchHandler = function (evt) {
             newEdge = cy.getElementById(newEdge.data.id)
             if (newEdge.isLoop()) {
                 if (gain < 0) {
-                    newEdge.style('loop-direction', '0deg');
+                    newEdge.data('loopDirection', '0deg');
                 } else {
-                    newEdge.style('loop-direction', '180deg');
+                    newEdge.data('loopDirection', '180deg');
                 }
 
-                newEdge.style('loop-sweep', '45deg');
-                newEdge.style('control-point-distances', [-43, 50, -43]);
+                newEdge.data('loopSweep', '45deg');
+                newEdge.data('controlPoints', [-43, 50, -43]);
                 console.log("loop");
                 resizeGraph();
                 setaddBranchPressed(false);
@@ -442,7 +442,7 @@ var addBranchHandler = function (evt) {
             diff = Math.abs(fromNode.position('x') - toNode.position('x'))
             controlPoints = [(-100 - 5 * diff) / 8, (-100 - 3 * diff) / 8, (100 + diff) / 6, (-100 - 3 * diff) / 8, (-100 - 5 * diff) / 8]
             console.log(controlPoints)
-            newEdge.style('control-point-distances', controlPoints)
+            newEdge.data('controlPoints', controlPoints)
             resizeGraph();
             console.log("finish add branch")
             setaddBranchPressed(false)
@@ -499,8 +499,8 @@ function clearAll() {
     cy.nodes().forEach(function (ele) {
         cy.remove(ele);
     });
-    nodesCount = 0;
-    edgesCount = 0;
+    nodesIdsCount = 0;
+    edgesIdsCount = 0;
     console.log("graph has been destroyed!");
 }
 
@@ -520,7 +520,7 @@ var cy = cytoscape({
             'content': 'data(name)',
             'text-valign': 'center',
             'color': 'white',
-            'background-color': '#1970fc',
+            'background-color': 'data(color)',
         })
         .selector(':selected')
         .css({
@@ -542,7 +542,10 @@ var cy = cytoscape({
             'curve-style': 'unbundled-bezier',
             'target-arrow-shape': 'triangle',
             'line-color': '#6FB1FC',
-            'target-arrow-color': '#6FB1FC'
+            'target-arrow-color': '#6FB1FC',
+            'control-point-distances': 'data(controlPoints)',
+            'loop-direction': 'data(loopDirection)',
+            'loop-sweep': 'data(loopSweep)'
         }),
     layout: {
         name: 'grid'

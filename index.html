@@ -10,7 +10,7 @@
     <script src="js/lib/graphlib.min.js"></script>
 </head>
 
-<body>
+<body onLoad="checkFileAPI();">
     <div class="container">
 
         <!-- about -->
@@ -29,19 +29,33 @@
 
             <!-- Tab panes -->
             <div class="tab-pane active container" id="dragdrop"><br>
+
+
                 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <input type="file" class="btn button btn-outline-primary" onchange='readText(this)' />
+                        <button type="button" class="btn button btn-outline-primary" onclick="saveAsJSON('graph.json')">Save as JSON</button>
+
+                    </div>
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        <button type="button" class="btn button button btn-outline-primary" onclick="resizeGraph()">Fit</button>
+                        <button type="button" class="btn button button btn-outline-primary" onclick="snapShot()"><img src="assets/SnapshotIcon.png" width="20" /></button>
+                    </div>
+
+
+                </div>
+
+
+                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                    <div class="btn-group mr-2" role="group" aria-label="Third group">
                         <button type="button" class="btn button btn-outline-primary" onclick="addNode()">Add Node</button>
                         <button type="button" class="btn button btn-outline-primary" id="addBranch" onclick="addBranch()">Add Branch</button>
                         <button type="button" class="btn button btn-outline-primary" id="editLabel" onclick="editLabel()">Edit Label</button>
                         <button type="button" class="btn button btn-outline-primary" id="remove" onclick="activateRemove()">Remove</button>
                         <button type="button" class="btn btn-outline-danger" onclick="clearAll()">Clear All</button>
                     </div>
-                    <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <button type="button" class="btn button button btn-outline-primary" onclick="resizeGraph()">Fit</button>
-                        <button type="button" class="btn button button btn-outline-primary" onclick="snapShot()"><img src="assets/SnapshotIcon.png" width="20" /></button>
-                    </div>
-                    <div class="btn-group" role="group" aria-label="Third group">
+
+                    <div class="btn-group" role="group" aria-label="Fourth group">
                         <button type="button" class="btn button btn-outline-primary" id="start" onclick="setStart()">Set Source</button>
                         <button type="button" class="btn button btn-outline-primary" id="end" onclick="setEnd()">Set End</button>
                         <button type="button" class="btn btn-outline-success" onclick="solve()">Solve</button>
