@@ -30,8 +30,8 @@ The user has the ability to take a snapshot of the graph as jpg image <br/>
 
 ## Built With
 * Javascript - The programming language used
-* [graphlib.js](https://github.com/dagrejs/graphlib) - a javascript library that provides data structures for undirected and directed multi-graphs along with algorithms that can be used with them. It is used for the solving logic.
-* [cytoscape.js](http://js.cytoscape.org/) - a javascript Graph theory / network library for visualisation and analysis. It is used for the GUI.
+* [graphlib.js](https://github.com/dagrejs/graphlib) - A javascript library that provides data structures for undirected and directed multi-graphs along with algorithms that can be used with them. It is used for the solving logic.
+* [cytoscape.js](http://js.cytoscape.org/) - A javascript Graph theory / network library for visualisation and analysis. It is used for the GUI.
 
 ## Authors
 * **Mahmoud Tarek** - [MahmoudTarek97](https://github.com/MahmoudTarek97)
