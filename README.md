@@ -17,7 +17,7 @@ The program allows the user to create the graph very easily with the buttons tha
 
 The program allows the user to save his graph as JSON and load it whenever he wants <br/>
 ![alt saving](https://i.imgur.com/r1Ym2ds.png)
-* To save the graph he just should clcik the save button
+* To save the graph he just should click the save button
 * To load it he should choose the json file
 
 The user has the ability to take a snapshot of the graph as jpg image <br/>
